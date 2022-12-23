@@ -275,10 +275,10 @@ extension Paths {
         public struct GetParameters {
             /// Example: "1440"
             public var duration: String?
-            public var timestamp: Double?
+            public var timestamp: Int?
             public var radius: Double?
             /// Example: 60
-            public var interval: Double?
+            public var interval: Int?
             /// Example: 44.414
             public var latitude: Double?
             /// Example: -2.097
@@ -313,7 +313,7 @@ extension Paths {
                 case msl = "MSL"
             }
 
-            public init(duration: String? = nil, timestamp: Double? = nil, radius: Double? = nil, interval: Double? = nil, latitude: Double? = nil, longitude: Double? = nil, model: Model? = nil, stationRadius: Double? = nil, stationID: String? = nil, datum: Datum? = nil) {
+            public init(duration: String? = nil, timestamp: Int? = nil, radius: Double? = nil, interval: Int? = nil, latitude: Double? = nil, longitude: Double? = nil, model: Model? = nil, stationRadius: Double? = nil, stationID: String? = nil, datum: Datum? = nil) {
                 self.duration = duration
                 self.timestamp = timestamp
                 self.radius = radius
