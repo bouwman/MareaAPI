@@ -276,7 +276,7 @@ extension Paths {
             /// Example: "1440"
             public var duration: String?
             public var timestamp: Int?
-            public var radius: Double?
+            public var radius: Int?
             /// Example: 60
             public var interval: Int?
             /// Example: 44.414
@@ -285,7 +285,7 @@ extension Paths {
             public var longitude: Double?
             /// Example: "FES2014"
             public var model: Model?
-            public var stationRadius: Double?
+            public var stationRadius: Int?
             public var stationID: String?
             /// Example: "MSL"
             public var datum: Datum?
@@ -313,7 +313,7 @@ extension Paths {
                 case msl = "MSL"
             }
 
-            public init(duration: String? = nil, timestamp: Int? = nil, radius: Double? = nil, interval: Int? = nil, latitude: Double? = nil, longitude: Double? = nil, model: Model? = nil, stationRadius: Double? = nil, stationID: String? = nil, datum: Datum? = nil) {
+            public init(duration: String? = nil, timestamp: Int? = nil, radius: Int? = nil, interval: Int? = nil, latitude: Double? = nil, longitude: Double? = nil, model: Model? = nil, stationRadius: Int? = nil, stationID: String? = nil, datum: Datum? = nil) {
                 self.duration = duration
                 self.timestamp = timestamp
                 self.radius = radius

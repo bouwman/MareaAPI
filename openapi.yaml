@@ -1,0 +1,1327 @@
+openapi: 3.0.0
+
+tags:
+  - name: Tides
+  - name: Stations
+
+info:
+  title: Marea API
+  description: |-
+    ## Description
+    Marea API is RESTful API providing tidal heights predictions at any location of the World Ocean as JSON.
+
+    Tide prediction consists of the calculated tidal heights for a particular time and location and tidal heights, time of the extremes (low and high tides), [tidal datums](https://tidesandcurrents.noaa.gov/datum_options.html) (like `LAT`, `HAT`, `MLLW`, `MHHW`, `MHW`, `MLW`, `MTL`, `DTL`, `GT`, `MN`, `DHQ`, `DLQ`) for predicted location, station information etc.
+
+    Tidal heights are returned as [Mean Sea Level (MSL)](https://en.wikipedia.org/wiki/Sea_level). Support for the other tidal datums as reference level is planned in the future.
+
+    ## Data
+
+    This section describes which data sources are used for the predictions. The source of the prediction is part of every API response as `source` field.
+
+    ### Models
+
+    For global coverage we currently use two global models. `FES2014` (used by default) and `EOT20`. User can select preferred model via `model` query parameter.
+
+    #### FES2014
+
+    Generated using AVISO+ Products. FES2014 was produced by Noveltis, Legos and CLS and distributed by Aviso+, with support from Cnes (https://www.aviso.altimetry.fr/)
+
+    #### EOT20
+
+    Hart-Davis Michael, Piccioni Gaia, Dettmering Denise, Schwatke Christian, Passaro Marcello, Seitz Florian (2021). EOT20 - A global Empirical Ocean Tide model from multi-mission satellite altimetry. SEANOE. https://doi.org/10.17882/79489
+
+    ### Stations
+
+    In adition to global models we use following datasets to generate tide predictions for more than **5 000** locations worldwide. This predictions are generated from the historical measurements for that particular location so the station predictions should be more precise than the global models.
+
+    To prioritize calculation from the station, you can specify `station_radius` query with the maximum distance of the station from the requested prediction location (in km).
+
+    You can explore available stations using [Marea Tide Stations](https://marea.ooo/en/map) map.
+
+    #### TICON & GESLA
+
+    Piccioni, Gaia; Dettmering, Denise; Bosch, Wolfgang; Seitz, Florian (2018): TICON: Tidal Constants based on GESLA sea-level records from globally distributed tide gauges (data). PANGAEA, https://doi.org/10.1594/PANGAEA.896587, Supplement to: Piccioni, G et al. (2019): TICON: TIdal CONstants based on GESLA sea‐level records from globally located tide gauges. Geoscience Data Journal, 6(2), 97-104, https://doi.org/10.1002/gdj3.72
+
+    #### NOAA
+
+    Generated using NOAA CO-OPS Tides & Currents Metadata, https://tidesandcurrents.noaa.gov
+
+    #### ITGN
+
+    Contains Irish Public Sector Information licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0) licence (source http://waterlevel.ie/hydro-data/ - provided by the Office of Public Works)
+
+    ## Example usage
+
+    You can explore the provided data using [Marea Tide Charts](https://marea.ooo) website which can generate interactive Tide Chart for the current year for any location of the World Ocean.
+
+    ## Disclaimer
+
+    Predictions are based on historical tidal gauge data and satellite altimetry. The model does not take into account, for example, current weather and seismic activity so is **NOT suitable for navigational purposes or any other usage where one can be harmed or suffer damage.**
+
+    ## Pricing
+
+    Marea API is a paid service. You can create [Marea API account](/users/register) to get **100 free** requests to explore the API. For current pricing please see the Marea API [pricing page](/pricing).
+
+    ## Research purposes
+
+    We want to support researchers interested in the API use, so if you want to use the API for research purposes and need more requests, [contact us](mailto:api@marea.ooo) for a custom plan and we will try to do our best to support your research.
+
+    ## Unlimited access
+
+    If you need a plan with unlimited requests, [contact us](mailto:api@marea.ooo) for a custom plan.
+  version: v2
+  contact:
+    name: Marea API
+    url: 'https://api.marea.ooo'
+    email: api@marea.ooo
+  termsOfService: 'https://api.marea.ooo/terms-and-privacy'
+
+servers:
+  - description: Production Server
+    url: 'https://api.marea.ooo/v2'
+paths:
+  /tides:
+    get:
+      parameters:
+        - name: duration
+          in: query
+          required: false
+          description: 'Duration is the number of minutes for which the forecast should be calculated. Default is 1 440 (one day). Please note that one response can contain max 10 080 predicted heights, so duration/interval can''t be bigger than 10 080.'
+          schema:
+            type: string
+            example: '1440'
+        - name: timestamp
+          in: query
+          required: false
+          description: Timestamp (number of seconds since the unix epoch) of the prediction beginning. Defaults to current timestamp
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          description: 'When no prediction is found in requested coordinates, API tries to return the nearest prediction. You can limit the radius by setting radius parameter to any positive integer.'
+          schema:
+            type: number
+        - name: interval
+          in: query
+          required: false
+          description: 'Interval means number of minutes between the returned measurements. Please note that one response can contain max 10 080 predicted heights, so duration/interval can''t be bigger than 10 080.'
+          schema:
+            type: number
+            example: 60
+        - name: latitude
+          in: query
+          description: Latitude in range from -90 to 90
+          schema:
+            type: number
+            example: 44.414
+          required: false
+        - name: longitude
+          in: query
+          required: false
+          description: Longitude in range from -180 to 180
+          schema:
+            type: number
+            example: -2.097
+        - schema:
+            type: string
+            default: FES2014
+            enum:
+              - FES2014
+              - EOT20
+            example: FES2014
+          in: query
+          name: model
+          description: Preferred model for Tide prediction
+        - schema:
+            type: number
+          in: query
+          name: station_radius
+          description: 'When station is found in specified station_radius, return the prediction from the station (if not found, nearest model prediction is used)'
+        - schema:
+            type: string
+          in: query
+          name: station_id
+          description: Prediction for particular Station by ID (can't be used together with latitude and longitude parameters)
+        - schema:
+            type: string
+            default: MSL
+            enum:
+              - LAT
+              - HAT
+              - MLLW
+              - MHHW
+              - MHW
+              - MLW
+              - MTL
+              - DTL
+              - GT
+              - MN
+              - DHQ
+              - DLQ
+              - MSL
+            example: MSL
+          in: query
+          name: datum
+          description: Reference vertical datum (https://en.wikipedia.org/wiki/Vertical_datum). When specified all returned heights will be referred to selected datum (list of low and high tides, list of water levels, list of datums)
+      operationId: getTides
+      description: |-
+        Endpoint https://api.marea.ooo/v2/tides for getting Tide predictions like extremes and water level.
+
+        To get the prediction you need to specify `latitude`, `longitude` coordinates to get nearest tide forecast or set `station_id` parameter to get forecast from the particular station.
+      summary: Get Tides prediction
+      tags:
+        - Tides
+      responses:
+        '200':
+          $ref: '#/components/responses/tide-response-200'
+        '400':
+          $ref: '#/components/responses/tide-response-400'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/over-quota'
+        '404':
+          $ref: '#/components/responses/tide-response-404'
+        '500':
+          $ref: '#/components/responses/internal-server-error'
+        '502':
+          $ref: '#/components/responses/bad-gateway'
+        '504':
+          $ref: '#/components/responses/gateway-timeout'
+  /stations:
+    get:
+      description: Endpoint https://api.marea.ooo/v2/stations for getting list of available Stations
+      operationId: getStations
+      summary: Get Stations list
+      tags:
+        - Stations
+      responses:
+        '200':
+          $ref: '#/components/responses/stations-response-200'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/over-quota'
+        '500':
+          $ref: '#/components/responses/internal-server-error'
+        '502':
+          $ref: '#/components/responses/bad-gateway'
+        '504':
+          $ref: '#/components/responses/gateway-timeout'
+  '/stations/{station_id}':
+    parameters:
+      - schema:
+          type: string
+          example: 'NOAA:8443970'
+        name: station_id
+        in: path
+        required: true
+        description: Requested Station ID
+    get:
+      operationId: getStation
+      summary: Get Station detail
+      tags:
+        - Stations
+      responses:
+        '200':
+          $ref: '#/components/responses/station-response-200'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/over-quota'
+        '404':
+          $ref: '#/components/responses/station-response-404'
+        '500':
+          $ref: '#/components/responses/internal-server-error'
+        '502':
+          $ref: '#/components/responses/bad-gateway'
+        '504':
+          $ref: '#/components/responses/gateway-timeout'
+      description: Endpoint https://api.marea.ooo/v2/stations/{station_id} for getting Station detail
+components:
+  headers:
+    x-marea-api-remaining-prepaid-requests:
+      schema:
+        type: number
+      description: Number of remaining prepaid requests
+    x-marea-api-remaining-subscription-requests:
+      schema:
+        type: number
+      description: Number of remaining subscription requests
+    x-marea-api-request-cost:
+      schema:
+        type: number
+      description: Request cost
+    x-marea-api-request-took:
+      schema:
+        type: number
+      description: Request duration
+    x-marea-api-used-requests:
+      schema:
+        type: number
+      description: Number of request used for current period
+  securitySchemes:
+    token-in-header:
+      name: x-marea-api-token
+      type: apiKey
+      in: header
+    token:
+      name: token
+      type: apiKey
+      in: query
+  responses:
+    tide-response-200:
+      description: Successful response
+      content:
+        application/json:
+          examples:
+            model-prediction-example:
+              summary: Prediction from model
+              value:
+                disclaimer: NOT SUITABLE FOR NAVIGATIONAL PURPOSES. Marea API does not warrant that the provided data will be free from errors or omissions. Provided data are NOT suitable for usage where someone could be harmed or suffer any damage.
+                status: 200
+                latitude: 25
+                longitude: -90
+                origin:
+                  latitude: 25
+                  longitude: -90
+                  distance: 0
+                  unit: km
+                datums:
+                  LAT: -0.484
+                  HAT: 0.396
+                  MLLW: -0.21
+                  MHHW: 0.184
+                  MHW: 0.174
+                  MLW: -0.197
+                  MTL: -0.011
+                  DTL: -0.013
+                  GT: 0.393
+                  MN: 0.371
+                  DHQ: 0.009
+                  DLQ: 0.013
+                timestamp: 1633451210
+                datetime: '2021-10-05T16:26:50+00:00'
+                unit: m
+                timezone: UTC
+                datum: MSL
+                extremes:
+                  - timestamp: 1633451650
+                    datetime: '2021-10-05T16:34:10+00:00'
+                    height: 0.109
+                    state: HIGH TIDE
+                  - timestamp: 1633482505
+                    datetime: '2021-10-06T01:08:25+00:00'
+                    height: -0.035
+                    state: LOW TIDE
+                  - timestamp: 1633500454
+                    datetime: '2021-10-06T06:07:34+00:00'
+                    height: -0.003
+                    state: HIGH TIDE
+                  - timestamp: 1633518757
+                    datetime: '2021-10-06T11:12:37+00:00'
+                    height: -0.03
+                    state: LOW TIDE
+                heights:
+                  - timestamp: 1633451210
+                    datetime: '2021-10-05T16:26:50+00:00'
+                    height: 0.109
+                    state: FALLING
+                  - timestamp: 1633454810
+                    datetime: '2021-10-05T17:26:50+00:00'
+                    height: 0.105
+                    state: FALLING
+                  - timestamp: 1633458410
+                    datetime: '2021-10-05T18:26:50+00:00'
+                    height: 0.092
+                    state: FALLING
+                  - timestamp: 1633462010
+                    datetime: '2021-10-05T19:26:50+00:00'
+                    height: 0.071
+                    state: FALLING
+                  - timestamp: 1633465610
+                    datetime: '2021-10-05T20:26:50+00:00'
+                    height: 0.046
+                    state: FALLING
+                  - timestamp: 1633469210
+                    datetime: '2021-10-05T21:26:50+00:00'
+                    height: 0.02
+                    state: FALLING
+                  - timestamp: 1633472810
+                    datetime: '2021-10-05T22:26:50+00:00'
+                    height: -0.003
+                    state: FALLING
+                  - timestamp: 1633476410
+                    datetime: '2021-10-05T23:26:50+00:00'
+                    height: -0.022
+                    state: FALLING
+                  - timestamp: 1633480010
+                    datetime: '2021-10-06T00:26:50+00:00'
+                    height: -0.033
+                    state: FALLING
+                  - timestamp: 1633483610
+                    datetime: '2021-10-06T01:26:50+00:00'
+                    height: -0.035
+                    state: FALLING
+                  - timestamp: 1633487210
+                    datetime: '2021-10-06T02:26:50+00:00'
+                    height: -0.03
+                    state: RISING
+                  - timestamp: 1633490810
+                    datetime: '2021-10-06T03:26:50+00:00'
+                    height: -0.021
+                    state: RISING
+                  - timestamp: 1633494410
+                    datetime: '2021-10-06T04:26:50+00:00'
+                    height: -0.011
+                    state: RISING
+                  - timestamp: 1633498010
+                    datetime: '2021-10-06T05:26:50+00:00'
+                    height: -0.005
+                    state: RISING
+                  - timestamp: 1633501610
+                    datetime: '2021-10-06T06:26:50+00:00'
+                    height: -0.003
+                    state: RISING
+                  - timestamp: 1633505210
+                    datetime: '2021-10-06T07:26:50+00:00'
+                    height: -0.008
+                    state: FALLING
+                  - timestamp: 1633508810
+                    datetime: '2021-10-06T08:26:50+00:00'
+                    height: -0.016
+                    state: FALLING
+                  - timestamp: 1633512410
+                    datetime: '2021-10-06T09:26:50+00:00'
+                    height: -0.023
+                    state: FALLING
+                  - timestamp: 1633516010
+                    datetime: '2021-10-06T10:26:50+00:00'
+                    height: -0.029
+                    state: FALLING
+                  - timestamp: 1633519610
+                    datetime: '2021-10-06T11:26:50+00:00'
+                    height: -0.03
+                    state: FALLING
+                  - timestamp: 1633523210
+                    datetime: '2021-10-06T12:26:50+00:00'
+                    height: -0.025
+                    state: RISING
+                  - timestamp: 1633526810
+                    datetime: '2021-10-06T13:26:50+00:00'
+                    height: -0.011
+                    state: RISING
+                  - timestamp: 1633530410
+                    datetime: '2021-10-06T14:26:50+00:00'
+                    height: 0.011
+                    state: RISING
+                  - timestamp: 1633534010
+                    datetime: '2021-10-06T15:26:50+00:00'
+                    height: 0.036
+                    state: RISING
+                source: FES2014
+                copyright: '©2021 Marea | Generated using AVISO+ Products. FES2014 was produced by Noveltis, Legos and CLS and distributed by Aviso+, with support from Cnes (https://www.aviso.altimetry.fr/)'
+            station-prediction-example:
+              summary: Prediction from Station
+              value:
+                disclaimer: NOT SUITABLE FOR NAVIGATIONAL PURPOSES. Marea API does not warrant that the provided data will be free from errors or omissions. Provided data are NOT suitable for usage where someone could be harmed or suffer any damage.
+                status: 200
+                latitude: 25
+                longitude: -90
+                origin:
+                  latitude: 21.3033
+                  longitude: -89.6667
+                  distance: 410.815858
+                  unit: km
+                  station:
+                    id: 'TICON:71ba67f174'
+                    name: 'Progreso-C, Yuc., Mexico'
+                    provider: Univ. Hawaii Sea Level Center (UHSLC)
+                datums:
+                  LAT: -0.653
+                  HAT: 0.437
+                  MLLW: -0.271
+                  MHHW: 0.214
+                  MHW: 0.183
+                  MLW: -0.209
+                  MTL: -0.013
+                  DTL: -0.029
+                  GT: 0.485
+                  MN: 0.393
+                  DHQ: 0.031
+                  DLQ: 0.062
+                timestamp: 1633451190
+                datetime: '2021-10-05T16:26:30+00:00'
+                unit: m
+                timezone: UTC
+                datum: MSL
+                extremes:
+                  - timestamp: 1633459448
+                    datetime: '2021-10-05T18:44:08+00:00'
+                    height: 0.17
+                    state: HIGH TIDE
+                  - timestamp: 1633489699
+                    datetime: '2021-10-06T03:08:19+00:00'
+                    height: -0.079
+                    state: LOW TIDE
+                  - timestamp: 1633510191
+                    datetime: '2021-10-06T08:49:51+00:00'
+                    height: 0.083
+                    state: HIGH TIDE
+                  - timestamp: 1633527472
+                    datetime: '2021-10-06T13:37:52+00:00'
+                    height: -0.005
+                    state: LOW TIDE
+                heights:
+                  - timestamp: 1633451190
+                    datetime: '2021-10-05T16:26:30+00:00'
+                    height: 0.132
+                    state: RISING
+                  - timestamp: 1633454790
+                    datetime: '2021-10-05T17:26:30+00:00'
+                    height: 0.156
+                    state: RISING
+                  - timestamp: 1633458390
+                    datetime: '2021-10-05T18:26:30+00:00'
+                    height: 0.17
+                    state: RISING
+                  - timestamp: 1633461990
+                    datetime: '2021-10-05T19:26:30+00:00'
+                    height: 0.166
+                    state: FALLING
+                  - timestamp: 1633465590
+                    datetime: '2021-10-05T20:26:30+00:00'
+                    height: 0.147
+                    state: FALLING
+                  - timestamp: 1633469190
+                    datetime: '2021-10-05T21:26:30+00:00'
+                    height: 0.115
+                    state: FALLING
+                  - timestamp: 1633472790
+                    datetime: '2021-10-05T22:26:30+00:00'
+                    height: 0.072
+                    state: FALLING
+                  - timestamp: 1633476390
+                    datetime: '2021-10-05T23:26:30+00:00'
+                    height: 0.026
+                    state: FALLING
+                  - timestamp: 1633479990
+                    datetime: '2021-10-06T00:26:30+00:00'
+                    height: -0.016
+                    state: FALLING
+                  - timestamp: 1633483590
+                    datetime: '2021-10-06T01:26:30+00:00'
+                    height: -0.051
+                    state: FALLING
+                  - timestamp: 1633487190
+                    datetime: '2021-10-06T02:26:30+00:00'
+                    height: -0.074
+                    state: FALLING
+                  - timestamp: 1633490790
+                    datetime: '2021-10-06T03:26:30+00:00'
+                    height: -0.078
+                    state: FALLING
+                  - timestamp: 1633494390
+                    datetime: '2021-10-06T04:26:30+00:00'
+                    height: -0.06
+                    state: RISING
+                  - timestamp: 1633497990
+                    datetime: '2021-10-06T05:26:30+00:00'
+                    height: -0.021
+                    state: RISING
+                  - timestamp: 1633501590
+                    datetime: '2021-10-06T06:26:30+00:00'
+                    height: 0.025
+                    state: RISING
+                  - timestamp: 1633505190
+                    datetime: '2021-10-06T07:26:30+00:00'
+                    height: 0.063
+                    state: RISING
+                  - timestamp: 1633508790
+                    datetime: '2021-10-06T08:26:30+00:00'
+                    height: 0.082
+                    state: RISING
+                  - timestamp: 1633512390
+                    datetime: '2021-10-06T09:26:30+00:00'
+                    height: 0.079
+                    state: FALLING
+                  - timestamp: 1633515990
+                    datetime: '2021-10-06T10:26:30+00:00'
+                    height: 0.059
+                    state: FALLING
+                  - timestamp: 1633519590
+                    datetime: '2021-10-06T11:26:30+00:00'
+                    height: 0.03
+                    state: FALLING
+                  - timestamp: 1633523190
+                    datetime: '2021-10-06T12:26:30+00:00'
+                    height: 0.005
+                    state: FALLING
+                  - timestamp: 1633526790
+                    datetime: '2021-10-06T13:26:30+00:00'
+                    height: -0.005
+                    state: FALLING
+                  - timestamp: 1633530390
+                    datetime: '2021-10-06T14:26:30+00:00'
+                    height: 0
+                    state: RISING
+                  - timestamp: 1633533990
+                    datetime: '2021-10-06T15:26:30+00:00'
+                    height: 0.021
+                    state: RISING
+                source: STATION
+                copyright: '©2021 Marea | Piccioni, Gaia; Dettmering, Denise; Bosch, Wolfgang; Seitz, Florian (2018): TICON: Tidal Constants based on GESLA sea-level records from globally distributed tide gauges (data). PANGAEA, https://doi.org/10.1594/PANGAEA.896587, Supplement to: Piccioni, G et al. (2019): TICON: TIdal CONstants based on GESLA sea‐level records from globally located tide gauges. Geoscience Data Journal, 6(2), 97-104, https://doi.org/10.1002/gdj3.72'
+          schema:
+            description: ''
+            type: object
+            properties:
+              disclaimer:
+                type: string
+                description: Marea API disclaimer
+                default: NOT SUITABLE FOR NAVIGATIONAL PURPOSES. API Hood does not warrant that the provided data will be free from errors or omissions. Provided data are NOT suitable for usage where someone could be harmed or suffer any damage.
+              status:
+                type: number
+                description: Response status
+                default: 200
+                enum:
+                  - 200
+                  - 404
+              latitude:
+                type: number
+                description: Requested latitude
+                example: 9.7384806
+              longitude:
+                type: number
+                description: Requested longitude
+                example: -82.8407626
+              origin:
+                type: object
+                description: Nearest location for requested coordinates with tide predictions available
+                required:
+                  - latitude
+                  - longitude
+                  - distance
+                  - unit
+                properties:
+                  latitude:
+                    type: number
+                    description: Origin latitude
+                    example: 9.9883
+                  longitude:
+                    type: number
+                    description: Origin longitude
+                    example: -83.02
+                  distance:
+                    type: number
+                    description: Origin distance from requested coordinates
+                    example: 33.911847
+                  unit:
+                    type: string
+                    description: Distance unit
+                    default: km
+                  station:
+                    type: object
+                    description: Origin tide station (in case the prediction is from known station)
+                    properties:
+                      id:
+                        type: string
+                        description: Station ID
+                        example: 'TICON:3fe9da7c30'
+                      name:
+                        type: string
+                        description: Station name
+                        example: 'Limon-B, Costa Rica'
+                      provider:
+                        type: string
+                        description: Station provider
+                        example: Univ. Hawaii Sea Level Center (UHSLC)
+                    required:
+                      - id
+                      - name
+                      - provider
+              datums:
+                $ref: '#/components/schemas/datums'
+              timestamp:
+                type: number
+                description: Requested timestamp
+                example: 1633436761
+              datetime:
+                type: string
+                description: Timestamp as datetime in timezone specified in timezone field
+                example: '2021-10-05T12:26:01+00:00'
+              unit:
+                type: string
+                description: Unit for the prediction heights
+                default: m
+                example: m
+              timezone:
+                type: string
+                description: Datetime timezone
+                default: UTC
+                example: UTC
+              datum:
+                type: string
+                description: Reference Tidal datum
+                default: MSL
+                example: MSL
+              extremes:
+                type: array
+                uniqueItems: true
+                minItems: 1
+                description: List of low and high tides
+                items:
+                  type: object
+                  description: High or Low tide
+                  properties:
+                    timestamp:
+                      type: number
+                      description: Timestamp of the extreme
+                      example: 1633454033
+                    datetime:
+                      type: string
+                      description: Datetime of the extreme (using top level timezone)
+                      example: '2021-10-05T17:13:53+00:00'
+                    height:
+                      type: number
+                      description: Extreme water level (using top level units and tidal datum reference)
+                      example: 0.119
+                    state:
+                      type: string
+                      description: Extreme state - "LOW TIDE" / "HIGH TIDE"
+                      enum:
+                        - LOW TIDE
+                        - HIGH TIDE
+                      example: HIGH TIDE
+                  required:
+                    - timestamp
+                    - datetime
+                    - height
+                    - state
+              heights:
+                type: array
+                uniqueItems: true
+                minItems: 1
+                description: List of water levels with requested interval
+                items:
+                  type: object
+                  description: Water level prediction
+                  properties:
+                    timestamp:
+                      type: number
+                      description: Timestamp of the water level
+                      example: 1633436761
+                    datetime:
+                      type: string
+                      description: Datetime of the waterlevel (using top level timezone)
+                      example: '2021-10-05T12:26:01+00:00'
+                    height:
+                      type: number
+                      description: Water level (using top level units and tidal datum reference)
+                      example: -0.001
+                    state:
+                      type: string
+                      description: Water state - "FALLING" / "RISING"
+                      enum:
+                        - FALLING
+                        - RISING
+                      example: RISING
+                  required:
+                    - timestamp
+                    - datetime
+                    - height
+                    - state
+              source:
+                type: string
+                description: Prediction source. It can return model ID OR "STATION"
+                enum:
+                  - STATION
+                  - FES2014
+                  - EOT20
+                default: FES2014
+                example: STATION
+              copyright:
+                type: string
+                description: Prediction source copyright
+                example: '©2021 Marea | Piccioni, Gaia; Dettmering, Denise; Bosch, Wolfgang; Seitz, Florian (2018): TICON: Tidal Constants based on GESLA sea-level records from globally distributed tide gauges (data). PANGAEA, https://doi.org/10.1594/PANGAEA.896587, Supplement to: Piccioni, G et al. (2019): TICON: TIdal CONstants based on GESLA sea‐level records from globally located tide gauges. Geoscience Data Journal, 6(2), 97-104, https://doi.org/10.1002/gdj3.72'
+            required:
+              - disclaimer
+              - status
+              - latitude
+              - longitude
+              - origin
+              - datums
+              - timestamp
+              - datetime
+              - unit
+              - timezone
+              - datum
+              - extremes
+              - heights
+              - source
+              - copyright
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+    tide-response-404:
+      description: Not Found 404 response
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+      content:
+        application/json:
+          examples:
+            radius-not-found-request:
+              summary: Prediction not found
+              value:
+                status: 404
+                latitude: 3
+                longitude: 20
+                error: No data found in 1 km radius from the selected location
+            station-not-found-request:
+              summary: Station not found
+              value:
+                status: 404
+                error: Station with ID 123 not found
+          schema:
+            description: ''
+            type: object
+            properties:
+              status:
+                type: number
+                description: Response status code
+                default: 404
+                example: 404
+              latitude:
+                type: number
+                description: Requested latitude
+                example: 3
+              longitude:
+                type: number
+                description: Requested longitude
+                example: 20
+              error:
+                type: string
+                description: Error message
+                example: No data found in 1 km radius from the selected location
+            required:
+              - status
+              - error
+    unauthorized:
+      description: Unauthorized 401 response
+      content:
+        application/json:
+          examples:
+            unauthorized:
+              summary: Unauthorized
+              value:
+                status: 401
+                error: Unauthorized
+          schema:
+            description: ''
+            type: object
+            properties:
+              error:
+                type: string
+                default: Unauthorized
+                example: Unauthorized
+                description: Error message
+              status:
+                type: number
+                description: Response status code
+                default: 401
+                example: 401
+            required:
+              - error
+    over-quota:
+      description: Over quota 403 response
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+      content:
+        application/json:
+          examples:
+            over-quota:
+              summary: Over quota
+              value:
+                status: 403
+                error: Over quota
+          schema:
+            description: ''
+            type: object
+            properties:
+              error:
+                type: string
+                default: Over quota
+                example: Over quota
+                description: Error message
+              status:
+                type: number
+                description: Response status code
+                default: 403
+                example: 403
+            required:
+              - error
+    tide-response-400:
+      description: Bad Request 400 response
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+      content:
+        application/json:
+          examples:
+            bad-request:
+              summary: Bad request example
+              value:
+                errors:
+                  model: 'Invalid model. It should be one of [''FES2014'', ''EOT20'']'
+          schema:
+            description: ''
+            type: object
+            properties:
+              errors:
+                oneOf:
+                  - properties:
+                      radius:
+                        type: string
+                        description: Query param `radius` validation error
+                      latitude:
+                        type: string
+                        description: Query param `latitude` validation error
+                      longitude:
+                        type: string
+                        description: Query param `longitude` validation error
+                      station_radius:
+                        type: string
+                        description: Query param `station_radius` validation error
+                      model:
+                        type: string
+                        description: Query param `model` validation error
+                      interval:
+                        type: string
+                        description: Query param `interval` validation error
+                      timestamp:
+                        type: string
+                        description: Query param `timestamp` validation error
+                      duration:
+                        type: string
+                        description: Query param `duration` validation error
+                      params:
+                        type: string
+                        description: Multiple query params validation error
+                type: object
+            required:
+              - errors
+    stations-response-200:
+      description: Stations list response
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+      content:
+        application/json:
+          examples:
+            station-list:
+              summary: Station list
+              value:
+                - id: 'TICON:cdc256d03b'
+                  name: 'Mawson, Australia'
+                  latitude: -67.6
+                  longitude: 62.8833
+                - id: 'NOAA:8443970'
+                  name: 'Kagoshima, Japan'
+                  latitude: 31.5833
+                  longitude: 130.5667
+          schema:
+            type: array
+            description: ''
+            minItems: 0
+            uniqueItems: true
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 'TICON:cdc256d03b'
+                  description: Station ID
+                name:
+                  type: string
+                  example: 'Mawson, Australia'
+                  description: Station name
+                latitude:
+                  type: number
+                  example: -67.6
+                  description: Station latitude
+                longitude:
+                  type: number
+                  example: 62.8833
+                  description: Station longitude
+              required:
+                - id
+                - name
+                - latitude
+                - longitude
+    station-response-200:
+      description: Example response
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+      content:
+        application/json:
+          examples:
+            station-detail:
+              summary: 'Station Detail'
+              value:
+                status: 200
+                id: 'TICON:cdc256d03b'
+                name: 'Mawson, Australia'
+                latitude: -67.6
+                longitude: 62.8833
+                provider: British Oceanographic Data Centre
+                type: HARMONIC
+                datums:
+                  LAT: -0.769
+                  HAT: 0.831
+                  MLLW: -0.374
+                  MHHW: 0.391
+                  MHW: 0.259
+                  MLW: -0.281
+                  MTL: -0.011
+                  DTL: 0.008
+                  GT: 0.765
+                  MN: 0.54
+                  DHQ: 0.131
+                  DLQ: 0.093
+                timezone: Antarctica/Mawson
+          schema:
+            description: 'Station detail'
+            type: object
+            properties:
+              status:
+                type: number
+                description: Response status code
+                default: 200
+                example: 200
+              id:
+                type: string
+                description: Station ID
+              name:
+                type: string
+                description: Station name
+              latitude:
+                type: number
+                description: Station latitude
+              longitude:
+                type: number
+                description: Station longitude
+              provider:
+                type: string
+                description: Station provider
+              type:
+                type: string
+                description: Station type
+                enum:
+                  - HARMONIC
+                  - REFERENCE
+              datums:
+                $ref: '#/components/schemas/datums'
+              timezone:
+                type: string
+                description: Station timezone
+            required:
+              - status
+              - id
+              - name
+              - latitude
+              - longitude
+              - provider
+              - type
+              - datums
+              - timezone
+    station-response-404:
+      description: Not Found 404 response
+      headers:
+        x-marea-api-remaining-prepaid-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-prepaid-requests'
+        x-marea-api-remaining-subscription-requests:
+          $ref: '#/components/headers/x-marea-api-remaining-subscription-requests'
+        x-marea-api-request-cost:
+          $ref: '#/components/headers/x-marea-api-request-cost'
+        x-marea-api-request-took:
+          $ref: '#/components/headers/x-marea-api-request-took'
+        x-marea-api-used-requests:
+          $ref: '#/components/headers/x-marea-api-used-requests'
+      content:
+        application/json:
+          examples:
+            station-not-found-request:
+              summary: Station not found
+              value:
+                status: 404
+                error: Station with ID 123 not found
+          schema:
+            properties:
+              status:
+                type: number
+                description: Response status code
+                default: 404
+                example: 404
+              error:
+                type: string
+                description: Error message
+    bad-gateway:
+      description: Bad Gateway 502 response
+      content:
+        application/json:
+          examples:
+            bad-gateway:
+              summary: Bad Gateway
+              value:
+                status: 502
+                error: "Upstream error: econnrefused"
+          schema:
+            description: ''
+            type: object
+            properties:
+              error:
+                type: string
+                default: "Upstream error: ERROR"
+                example: "Upstream error: econnrefused"
+                description: Error message
+              status:
+                type: number
+                description: Response status code
+                default: 502
+                example: 502
+            required:
+              - error
+    internal-server-error:
+      description: Internal Server Error 500 response
+      content:
+        application/json:
+          examples:
+            internal-server-error:
+              summary: Internal Server Error
+              value:
+                status: 500
+                error: "Internal Server Error"
+          schema:
+            description: ''
+            type: object
+            properties:
+              error:
+                type: string
+                default: "Internal Server Error"
+                example: "Internal Server Error"
+                description: Error message
+              status:
+                type: number
+                description: Response status code
+                default: 500
+                example: 500
+            required:
+              - error
+    gateway-timeout:
+      description: Gateway Timeout 504 response
+      content:
+        application/json:
+          examples:
+            gateway-timeout:
+              summary: Gateway Timeout
+              value:
+                status: 504
+                error: "Upstream error: timeout"
+          schema:
+            description: ''
+            type: object
+            properties:
+              error:
+                type: string
+                default: "Upstream error: ERROR"
+                example: "Upstream error: timeout"
+                description: Error message
+              status:
+                type: number
+                description: Response status code
+                default: 504
+                example: 504
+            required:
+              - error
+  examples: {}
+  schemas:
+    datums:
+      title: datums
+      type: object
+      description: 'Tidal datums'
+      required:
+        - LAT
+        - HAT
+        - MLLW
+        - MHHW
+        - MHW
+        - MLW
+        - MTL
+        - DTL
+        - GT
+        - MN
+        - DLQ
+        - DHQ
+      properties:
+        LAT:
+          type: number
+          description: |-
+            Lowest Astronomical Tide
+
+            The elevation of the lowest astronomical predicted tide expected to occur at a specific tide station over the National Tidal Datum Epoch. 
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: -0.304
+        HAT:
+          type: number
+          description: |-
+            Highest Astronomical Tide
+
+            The elevation of the highest predicted astronomical tide expected to occur at a specific tide station over the National Tidal Datum Epoch. 
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.315
+        MLLW:
+          type: number
+          description: |-
+            Mean Lower Low Water
+
+            The average of the lower low water height of each tidal day observed over the National Tidal Datum Epoch. For stations with shorter series, comparison of simultaneous observations with a control tide station is made in order to derive the equivalent datum of the National Tidal Datum Epoch.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: -0.157
+        MHHW:
+          type: number
+          description: |-
+            Mean Higher High Water
+
+            The average of the higher high water height of each tidal day observed over the National Tidal Datum Epoch. For stations with shorter series, comparison of simultaneous observations with a control tide station is made in order to derive the equivalent datum of the National Tidal Datum Epoch.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.181
+        MHW:
+          type: number
+          description: |-
+            Mean High Water
+
+            The average of all the high water heights observed over the National Tidal Datum Epoch. For stations with shorter series, comparison of simultaneous observations with a control tide station is made in order to derive the equivalent datum of the National Tidal Datum Epoch.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.104
+        MLW:
+          type: number
+          description: |-
+            Mean Low Water
+
+            The average of all the low water heights observed over the National Tidal Datum Epoch. For stations with shorter series, comparison of simultaneous observations with a control tide station is made in order to derive the equivalent datum of the National Tidal Datum Epoch.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: -0.107
+        MTL:
+          type: number
+          description: |-
+            Mean Tide Level
+
+            The arithmetic mean of mean high water and mean low water.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: -0.002
+        DTL:
+          type: number
+          description: |-
+            Diurnal Tide Level
+
+            The arithmetic mean of mean higher high water and mean lower low water.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.012
+        GT:
+          type: number
+          description: |-
+            Great Diurnal Range
+
+            The difference in height between mean higher high water and mean lower low water.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.339
+        MN:
+          type: number
+          description: |-
+            Mean Range of Tide
+
+            The difference in height between mean high water and mean low water.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.211
+        DLQ:
+          type: number
+          description: |-
+            Mean Diurnal Low Water Inequality
+
+            One-half the average difference between the two low waters of each tidal day observed over the National Tidal Datum Epoch. It is obtained by subtracting the mean of the lower low waters from the mean of all the low waters.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.05
+        DHQ:
+          type: number
+          description: |-
+            Mean Diurnal High Water Inequality
+
+            One-half the average difference between the two high waters of each tidal day observed over the National Tidal Datum Epoch. It is obtained by subtracting the mean of all the high waters from the mean of the higher high waters.
+
+            source: https://tidesandcurrents.noaa.gov/datum_options.html
+          example: 0.078
+security:
+  - token-in-header: []
+  - token: []
