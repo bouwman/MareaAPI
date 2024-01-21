@@ -1,0 +1,98 @@
+{
+  "disclaimer": "NOT SUITABLE FOR NAVIGATIONAL PURPOSES. Marea API does not warrant that the provided data will be free from errors or omissions. Provided data are NOT suitable for usage where someone could be harmed or suffer any damage.",
+  "status": 200,
+  "latitude": 44.414,
+  "longitude": -2.097,
+  "origin": {
+    "latitude": 44.4375,
+    "longitude": -2.125,
+    "distance": 3.433716,
+    "unit": "km"
+  },
+  "datums": {
+    "LAT": -2.318,
+    "HAT": 2.364,
+    "MLLW": -1.406,
+    "MHHW": 1.405,
+    "MHW": 1.337,
+    "MLW": -1.357,
+    "MTL": -0.01,
+    "DTL": -0.001,
+    "GT": 2.811,
+    "MN": 2.694,
+    "DHQ": 0.067,
+    "DLQ": 0.049,
+    "MSL": 0
+  },
+  "timestamp": 1687623090,
+  "datetime": "2023-06-24T16:11:30+00:00",
+  "unit": "m",
+  "timezone": "UTC",
+  "datum": "MSL",
+  "extremes": [
+    {
+      "timestamp": 1687635082,
+      "height": 1.0525474212,
+      "state": "HIGH TIDE",
+      "datetime": "2023-06-24T19:31:22+00:00"
+    },
+    {
+      "timestamp": 1687658311,
+      "height": -0.9823146179,
+      "state": "LOW TIDE",
+      "datetime": "2023-06-25T01:58:31+00:00"
+    },
+    {
+      "timestamp": 1687680183,
+      "height": 0.7683443425,
+      "state": "HIGH TIDE",
+      "datetime": "2023-06-25T08:03:03+00:00"
+    },
+    {
+      "timestamp": 1687702135,
+      "height": -0.8267914053,
+      "state": "LOW TIDE",
+      "datetime": "2023-06-25T14:08:55+00:00"
+    }
+  ],
+  "heights": [
+    {
+      "timestamp": 1687623090,
+      "height": -0.0477533012,
+      "state": "RISING",
+      "datetime": "2023-06-24T16:11:30+00:00"
+    },
+    {
+      "timestamp": 1687637490,
+      "height": 1.0039383206,
+      "state": "FALLING",
+      "datetime": "2023-06-24T20:11:30+00:00"
+    },
+    {
+      "timestamp": 1687651890,
+      "height": -0.6110937846,
+      "state": "FALLING",
+      "datetime": "2023-06-25T00:11:30+00:00"
+    },
+    {
+      "timestamp": 1687666290,
+      "height": -0.4554572986,
+      "state": "RISING",
+      "datetime": "2023-06-25T04:11:30+00:00"
+    },
+    {
+      "timestamp": 1687680690,
+      "height": 0.7664391309,
+      "state": "FALLING",
+      "datetime": "2023-06-25T08:11:30+00:00"
+    },
+    {
+      "timestamp": 1687695090,
+      "height": -0.4330988698,
+      "state": "FALLING",
+      "datetime": "2023-06-25T12:11:30+00:00"
+    }
+  ],
+  "source": "FES2014",
+  "copyright": "©2023 Marea | Generated using AVISO+ Products. FES2014 was produced by Noveltis, Legos and CLS and distributed by Aviso+, with support from Cnes (https://www.aviso.altimetry.fr/)"
+}
