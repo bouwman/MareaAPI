@@ -17,10 +17,10 @@ extension Paths {
         /// Get Tides prediction
         ///
         /// Endpoint https://api.marea.ooo/v2/tides for getting Tide predictions like extremes and water level.
-        /// 
+        ///
         /// To get the prediction you need to specify `latitude`, `longitude` coordinates to get nearest tide forecast or set `station_id` parameter to get forecast from the particular station.
         public func get(parameters: GetParameters? = nil) -> Request<GetResponse> {
-            Request(method: "GET", url: path, query: parameters?.asQuery, id: "getTides")
+            Request(path: path, method: "GET", query: parameters?.asQuery, id: "getTides")
         }
 
         public struct GetResponse: Decodable {
@@ -275,17 +275,17 @@ extension Paths {
         public struct GetParameters {
             /// Example: "1440"
             public var duration: String?
-            public var timestamp: Int?
-            public var radius: Int?
+            public var timestamp: Double?
+            public var radius: Double?
             /// Example: 60
-            public var interval: Int?
+            public var interval: Double?
             /// Example: 44.414
             public var latitude: Double?
             /// Example: -2.097
             public var longitude: Double?
             /// Example: "FES2014"
             public var model: Model?
-            public var stationRadius: Int?
+            public var stationRadius: Double?
             public var stationID: String?
             /// Example: "MSL"
             public var datum: Datum?
@@ -313,7 +313,7 @@ extension Paths {
                 case msl = "MSL"
             }
 
-            public init(duration: String? = nil, timestamp: Int? = nil, radius: Int? = nil, interval: Int? = nil, latitude: Double? = nil, longitude: Double? = nil, model: Model? = nil, stationRadius: Int? = nil, stationID: String? = nil, datum: Datum? = nil) {
+            public init(duration: String? = nil, timestamp: Double? = nil, radius: Double? = nil, interval: Double? = nil, latitude: Double? = nil, longitude: Double? = nil, model: Model? = nil, stationRadius: Double? = nil, stationID: String? = nil, datum: Datum? = nil) {
                 self.duration = duration
                 self.timestamp = timestamp
                 self.radius = radius

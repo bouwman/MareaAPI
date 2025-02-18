@@ -18,7 +18,7 @@ extension Paths.Stations {
         ///
         /// Endpoint https://api.marea.ooo/v2/stations/{station_id} for getting Station detail
         public var get: Request<GetResponse> {
-            Request(method: "GET", url: path, id: "getStation")
+            Request(path: path, method: "GET", id: "getStation")
         }
 
         /// Station detail

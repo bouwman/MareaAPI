@@ -18,7 +18,7 @@ extension Paths {
         ///
         /// Endpoint https://api.marea.ooo/v2/stations for getting list of available Stations
         public var get: Request<[GetResponseItem]> {
-            Request(method: "GET", url: path, id: "getStations")
+            Request(path: path, method: "GET", id: "getStations")
         }
 
         public struct GetResponseItem: Decodable {
