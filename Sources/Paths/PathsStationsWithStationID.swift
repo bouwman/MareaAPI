@@ -26,7 +26,7 @@ extension Paths.Stations {
             /// Response status code
             ///
             /// Example: 200
-            public var status: Int
+            public var status: Int?
             /// Station ID
             public var id: String
             /// Station name
@@ -50,7 +50,7 @@ extension Paths.Stations {
                 case reference = "REFERENCE"
             }
 
-            public init(status: Int, id: String, name: String, latitude: Double, longitude: Double, provider: String, type: `Type`, datums: Marea.Datums, timezone: String) {
+            public init(status: Int?, id: String, name: String, latitude: Double, longitude: Double, provider: String, type: `Type`, datums: Marea.Datums, timezone: String) {
                 self.status = status
                 self.id = id
                 self.name = name
@@ -64,7 +64,7 @@ extension Paths.Stations {
 
             public init(from decoder: Decoder) throws {
                 let values = try decoder.container(keyedBy: StringCodingKey.self)
-                self.status = try values.decode(Int.self, forKey: "status")
+                self.status = try values.decodeIfPresent(Int.self, forKey: "status")
                 self.id = try values.decode(String.self, forKey: "id")
                 self.name = try values.decode(String.self, forKey: "name")
                 self.latitude = try values.decode(Double.self, forKey: "latitude")
