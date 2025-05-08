@@ -581,7 +581,7 @@ components:
                 description: Marea API disclaimer
                 default: NOT SUITABLE FOR NAVIGATIONAL PURPOSES. API Hood does not warrant that the provided data will be free from errors or omissions. Provided data are NOT suitable for usage where someone could be harmed or suffer any damage.
               status:
-                type: number
+                type: integer
                 description: Response status
                 default: 200
                 enum:
@@ -804,7 +804,7 @@ components:
             type: object
             properties:
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 404
                 example: 404
@@ -843,7 +843,7 @@ components:
                 example: Unauthorized
                 description: Error message
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 401
                 example: 401
@@ -880,7 +880,7 @@ components:
                 example: Over quota
                 description: Error message
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 403
                 example: 403
@@ -1045,7 +1045,7 @@ components:
             type: object
             properties:
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 200
                 example: 200
@@ -1109,7 +1109,7 @@ components:
           schema:
             properties:
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 404
                 example: 404
@@ -1136,7 +1136,7 @@ components:
                 example: "Upstream error: econnrefused"
                 description: Error message
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 502
                 example: 502
@@ -1162,7 +1162,7 @@ components:
                 example: "Internal Server Error"
                 description: Error message
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 500
                 example: 500
@@ -1188,7 +1188,7 @@ components:
                 example: "Upstream error: timeout"
                 description: Error message
               status:
-                type: number
+                type: integer
                 description: Response status code
                 default: 504
                 example: 504

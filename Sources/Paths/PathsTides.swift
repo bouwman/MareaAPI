@@ -27,7 +27,7 @@ extension Paths {
             /// Marea API disclaimer
             public var disclaimer: String
             /// Response status
-            public var status: Double
+            public var status: Int
             /// Requested latitude
             ///
             /// Example: 9.7384806
@@ -234,7 +234,7 @@ extension Paths {
                 case eot20 = "EOT20"
             }
 
-            public init(disclaimer: String, status: Double, latitude: Double, longitude: Double, origin: Origin, datums: Marea.Datums, timestamp: Double, datetime: String, unit: String, timezone: String, datum: String, extremes: [Extreme], heights: [Height], source: Source, copyright: String) {
+            public init(disclaimer: String, status: Int, latitude: Double, longitude: Double, origin: Origin, datums: Marea.Datums, timestamp: Double, datetime: String, unit: String, timezone: String, datum: String, extremes: [Extreme], heights: [Height], source: Source, copyright: String) {
                 self.disclaimer = disclaimer
                 self.status = status
                 self.latitude = latitude
@@ -255,7 +255,7 @@ extension Paths {
             public init(from decoder: Decoder) throws {
                 let values = try decoder.container(keyedBy: StringCodingKey.self)
                 self.disclaimer = try values.decode(String.self, forKey: "disclaimer")
-                self.status = try values.decode(Double.self, forKey: "status")
+                self.status = try values.decode(Int.self, forKey: "status")
                 self.latitude = try values.decode(Double.self, forKey: "latitude")
                 self.longitude = try values.decode(Double.self, forKey: "longitude")
                 self.origin = try values.decode(Origin.self, forKey: "origin")
