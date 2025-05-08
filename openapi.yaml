@@ -745,7 +745,6 @@ components:
                 description: Prediction source copyright
                 example: '©2021 Marea | Piccioni, Gaia; Dettmering, Denise; Bosch, Wolfgang; Seitz, Florian (2018): TICON: Tidal Constants based on GESLA sea-level records from globally distributed tide gauges (data). PANGAEA, https://doi.org/10.1594/PANGAEA.896587, Supplement to: Piccioni, G et al. (2019): TICON: TIdal CONstants based on GESLA sea‐level records from globally located tide gauges. Geoscience Data Journal, 6(2), 97-104, https://doi.org/10.1002/gdj3.72'
             required:
-              - disclaimer
               - status
               - latitude
               - longitude
