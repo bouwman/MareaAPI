@@ -10,7 +10,7 @@ extension Paths {
         Tides(path: "/tides")
     }
 
-    public struct Tides {
+    public struct Tides: Sendable {
         /// Path: `/tides`
         public let path: String
 
@@ -23,7 +23,7 @@ extension Paths {
             Request(path: path, method: "GET", query: parameters?.asQuery, id: "getTides")
         }
 
-        public struct GetResponse: Decodable {
+        public struct GetResponse: Decodable, Sendable {
             /// Marea API disclaimer
             public var disclaimer: String
             /// Response status
@@ -74,7 +74,7 @@ extension Paths {
             public var copyright: String
 
             /// Nearest location for requested coordinates with tide predictions available
-            public struct Origin: Decodable {
+            public struct Origin: Decodable, Sendable {
                 /// Origin latitude
                 ///
                 /// Example: 9.9883
@@ -93,7 +93,7 @@ extension Paths {
                 public var station: Station?
 
                 /// Origin tide station (in case the prediction is from known station)
-                public struct Station: Decodable {
+                public struct Station: Decodable, Sendable {
                     /// Station ID
                     ///
                     /// Example: "TICON:3fe9da7c30"
@@ -140,7 +140,7 @@ extension Paths {
             }
 
             /// High or Low tide
-            public struct Extreme: Decodable {
+            public struct Extreme: Decodable, Sendable {
                 /// Timestamp of the extreme
                 ///
                 /// Example: 1633454033
@@ -161,7 +161,7 @@ extension Paths {
                 /// Extreme state - "LOW TIDE" / "HIGH TIDE"
                 ///
                 /// Example: "HIGH TIDE"
-                public enum State: String, Codable, CaseIterable {
+                public enum State: String, Codable, CaseIterable, Sendable {
                     case lowTide = "LOW TIDE"
                     case highTide = "HIGH TIDE"
                 }
@@ -183,7 +183,7 @@ extension Paths {
             }
 
             /// Water level prediction
-            public struct Height: Decodable {
+            public struct Height: Decodable, Sendable {
                 /// Timestamp of the water level
                 ///
                 /// Example: 1633436761
@@ -204,7 +204,7 @@ extension Paths {
                 /// Water state - "FALLING" / "RISING"
                 ///
                 /// Example: "RISING"
-                public enum State: String, Codable, CaseIterable {
+                public enum State: String, Codable, CaseIterable, Sendable {
                     case falling = "FALLING"
                     case rising = "RISING"
                 }
@@ -228,7 +228,7 @@ extension Paths {
             /// Prediction source. It can return model ID OR "STATION"
             ///
             /// Example: "STATION"
-            public enum Source: String, Codable, CaseIterable {
+            public enum Source: String, Codable, CaseIterable, Sendable {
                 case station = "STATION"
                 case fes2014 = "FES2014"
                 case eot20 = "EOT20"
@@ -272,7 +272,7 @@ extension Paths {
             }
         }
 
-        public struct GetParameters {
+        public struct GetParameters: Sendable {
             /// Example: "1440"
             public var duration: String?
             public var timestamp: Int?
@@ -291,13 +291,13 @@ extension Paths {
             public var datum: Datum?
 
             /// Example: "FES2014"
-            public enum Model: String, Codable, CaseIterable {
+            public enum Model: String, Codable, CaseIterable, Sendable {
                 case fes2014 = "FES2014"
                 case eot20 = "EOT20"
             }
 
             /// Example: "MSL"
-            public enum Datum: String, Codable, CaseIterable {
+            public enum Datum: String, Codable, CaseIterable, Sendable {
                 case lat = "LAT"
                 case hat = "HAT"
                 case mllw = "MLLW"

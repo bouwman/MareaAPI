@@ -22,7 +22,7 @@ extension Paths.Stations {
         }
 
         /// Station detail
-        public struct GetResponse: Decodable {
+        public struct GetResponse: Decodable, Sendable {
             /// Response status code
             ///
             /// Example: 200
@@ -45,7 +45,7 @@ extension Paths.Stations {
             public var timezone: String
 
             /// Station type
-            public enum `Type`: String, Codable, CaseIterable {
+            public enum `Type`: String, Codable, CaseIterable, Sendable {
                 case harmonic = "HARMONIC"
                 case reference = "REFERENCE"
             }

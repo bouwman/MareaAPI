@@ -10,7 +10,7 @@ extension Paths {
         Stations(path: "/stations")
     }
 
-    public struct Stations {
+    public struct Stations: Sendable {
         /// Path: `/stations`
         public let path: String
 
@@ -21,7 +21,7 @@ extension Paths {
             Request(path: path, method: "GET", id: "getStations")
         }
 
-        public struct GetResponseItem: Decodable {
+        public struct GetResponseItem: Decodable, Sendable {
             /// Station ID
             ///
             /// Example: "TICON:cdc256d03b"

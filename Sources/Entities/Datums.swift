@@ -4,7 +4,7 @@
 import Foundation
 
 /// Tidal datums
-public struct Datums: Codable {
+public struct Datums: Codable, Sendable {
     /// Lowest Astronomical Tide
     /// 
     /// The elevation of the lowest astronomical predicted tide expected to occur at a specific tide station over the National Tidal Datum Epoch. 
